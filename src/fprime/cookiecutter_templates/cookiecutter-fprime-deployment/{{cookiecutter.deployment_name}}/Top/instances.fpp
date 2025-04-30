@@ -44,7 +44,7 @@ module {{cookiecutter.deployment_name}} {
     priority 100
 
   instance comQueue: Svc.ComQueue base id 0x0700 \
-      queue size Default.QUEUE_SIZE \
+      queue size 50 \
       stack size Default.STACK_SIZE \
       priority 100 \
 
@@ -105,7 +105,7 @@ module {{cookiecutter.deployment_name}} {
   instance comDriver: Drv.{{cookiecutter.com_driver_type}} base id 0x4000 
 {%- endif %}
 
-  instance framer: Svc.Framer base id 0x4100
+  instance framer: Svc.FprimeFramer base id 0x4100
 
   instance fatalAdapter: Svc.AssertFatalAdapter base id 0x4200
 
