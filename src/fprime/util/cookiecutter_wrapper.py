@@ -15,6 +15,7 @@ from fprime.common.utils import confirm, check_path_is_within_fprime_module
 from fprime.fbuild.builder import Build
 from fprime.fbuild.cmake import CMakeExecutionException
 from fprime.fpp.impl import fpp_generate_implementation
+from fprime.util.file_util import get_directory_path_relative_to_root
 
 if TYPE_CHECKING:
     import argparse
@@ -178,9 +179,24 @@ def new_deployment(build: Build, parsed_args: "argparse.Namespace"):
             + "/../cookiecutter_templates/cookiecutter-fprime-deployment"
         )
         print("[INFO] Cookiecutter: using builtin template for new deployment")
+
+    # Determine the include path prefix based on the current directory
+    extra_context = {}
+    rel_path = get_directory_path_relative_to_root(build)
+
+    if rel_path:
+        extra_context["__include_path_prefix"] = f"{rel_path}/"
+        print(
+            f"[INFO] Creating a deployment in a subdirectory. Include paths will be prefixed with '{rel_path}/'"
+        )
+
     try:
         gen_path = Path(
-            cookiecutter(source, overwrite_if_exists=parsed_args.overwrite)
+            cookiecutter(
+                source,
+                extra_context=extra_context,
+                overwrite_if_exists=parsed_args.overwrite,
+            )
         ).resolve()
         # Attempt to register to CMakeLists.txt or project.cmake
         register_with_cmake(
