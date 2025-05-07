@@ -91,6 +91,8 @@ class Gcovr(ExecutableAction):
             None if include_test_ac else ".*/.*GTestBase.[ch]pp",
             None if include_test_ac else ".*/.*TesterBase.[ch]pp",
             None if include_test_ac else ".*/.*TesterHelpers.[ch]pp",
+            None if include_test_ac else ".*\/.*StateMachineAc.[ch]pp",
+
         ]
         raw_source_exclusion_filter_bases = [
             None if include_test else ".*/test/ut/.*",
