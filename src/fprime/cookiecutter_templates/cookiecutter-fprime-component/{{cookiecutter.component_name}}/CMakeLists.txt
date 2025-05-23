@@ -1,38 +1,36 @@
 ####
-# FPrime CMakeLists.txt:
+# F Prime CMakeLists.txt:
 #
-# SOURCE_FILES: combined list of source and autocoding files
-# MOD_DEPS: (optional) module dependencies
-# UT_SOURCE_FILES: list of source files for unit tests
+# SOURCES: list of source files (to be compiled)
+# AUTOCODER_INPUTS: list of files to be passed to the autocoders
+# DEPENDS: list of libraries that this module depends on
 #
 # More information in the F´ CMake API documentation:
-# https://fprime.jpl.nasa.gov/latest/docs/user-manual/build-system/cmake-api/
+# https://fprime.jpl.nasa.gov/latest/docs/reference/api/cmake/API/
 #
 ####
 
-set(SOURCE_FILES
-  "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.fpp"
-  "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.cpp"
+# Module names are derived from the path from the nearest project/library/framework
+# root when not specifically overridden by the developer. i.e. The module defined by
+# `Ref/SignalGen/CMakeLists.txt` will be named `Ref_SignalGen`.
+
+register_fprime_library(
+    AUTOCODER_INPUTS
+        "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.fpp"
+    SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.cpp"
+#   DEPENDS
+#       MyPackage_MyOtherModule
 )
 
-# Uncomment and add any modules that this component depends on, else
-# they might not be available when cmake tries to build this component.
-#
-# set(MOD_DEPS
-#   MyPackage_MyOtherModule
-# )
-
-register_fprime_module()
-
-
 ### Unit Tests ###
-# set(UT_SOURCE_FILES
-#   "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.fpp"
-#   "${CMAKE_CURRENT_LIST_DIR}/test/ut/{{cookiecutter.component_name}}TestMain.cpp"
-#   "${CMAKE_CURRENT_LIST_DIR}/test/ut/{{cookiecutter.component_name}}Tester.cpp"
+# register_fprime_ut(
+#     AUTOCODER_INPUTS
+#         "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.component_name}}.fpp"
+#     SOURCES
+#         "${CMAKE_CURRENT_LIST_DIR}/test/ut/{{cookiecutter.component_name}}TestMain.cpp"
+#         "${CMAKE_CURRENT_LIST_DIR}/test/ut/{{cookiecutter.component_name}}Tester.cpp"
+#     DEPENDS
+#         STest # For rules-based testing
+#     UT_AUTO_HELPERS
 # )
-# set(UT_MOD_DEPS
-#   STest
-# )
-# set(UT_AUTO_HELPERS ON)
-# register_fprime_ut()
