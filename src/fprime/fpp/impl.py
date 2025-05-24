@@ -120,6 +120,14 @@ def fpp_generate_implementation(
             ],
         ),
     )
+    if args.overwrite:
+        for path in output_dir.glob("*.template.*"):
+            renamed = output_dir / path.name.replace(".template", "")
+            if renamed.exists():
+                print(f"[WARN] Skipping overwrite: {renamed}")
+            else:
+                path.rename(renamed)
+                print(f"[INFO] Renamed: {path.name} → {renamed.name}")
 
     framework_path = build.settings.get("framework_path", Path("."))
     # FPP --names outputs a list of file names.
@@ -203,4 +211,10 @@ def add_fpp_impl_parsers(
         help="Generate test helper code for hand-coding. Default to False, leveraging the test helpers autocoded by FPP.",
         required=False,
     )
+    impl_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        default=False,
+        help="Rename generated .template.cpp and .template.hpp files to .cpp and .hpp, if no conflicts",
+)
     return {"impl": run_fpp_impl}, {"impl": impl_parser}
