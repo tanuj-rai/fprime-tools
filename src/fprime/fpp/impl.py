@@ -215,6 +215,6 @@ def add_fpp_impl_parsers(
         "--overwrite",
         action="store_true",
         default=False,
-        help="Rename generated .template.cpp and .template.hpp files to .cpp and .hpp, if no conflicts",
+        help="Overwrite contents of current CPP and HPP files. Use with caution.",
 )
     return {"impl": run_fpp_impl}, {"impl": impl_parser}
