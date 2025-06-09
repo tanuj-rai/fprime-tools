@@ -110,27 +110,32 @@ class Build:
             InvalidBuildCacheException: the build cache does not exist as it must
         """
         self.__setup_default(platform, build_dir)
-        if not skip_validation and (
-            not self.build_dir.exists()
-            or not (self.build_dir / "CMakeCache.txt").exists()
+
+        if skip_validation:
+            return
+        if (
+            self.build_dir is not None
+            and (self.build_dir / ".fprime-build-dir").exists()
         ):
-            # Message for hard-supplied --build-cache message
-            if build_dir is not None:
-                gen_args = f" --build-cache {build_dir}"
-            else:
-                gen_args = " --ut" if self.build_type == BuildType.BUILD_TESTING else ""
-                gen_args += (
-                    " " + platform
-                    if platform is not None
-                    and platform != "native"
-                    and platform != "default"
-                    else ""
-                )
-            msg = f"'{self.build_dir}' is not a valid build cache. Generate this build cache with 'fprime-util generate{gen_args} ...'"
-            raise InvalidBuildCacheException(
-                msg,
-                self.build_dir,
+            return
+
+        # Message for hard-supplied --build-cache message
+        if build_dir is not None:
+            gen_args = f" --build-cache {build_dir}"
+        else:
+            gen_args = " --ut" if self.build_type == BuildType.BUILD_TESTING else ""
+            gen_args += (
+                " " + platform
+                if platform is not None
+                and platform != "native"
+                and platform != "default"
+                else ""
             )
+        msg = f"'{self.build_dir}' is not a valid build cache. Generate this build cache with 'fprime-util generate{gen_args} ...'"
+        raise InvalidBuildCacheException(
+            msg,
+            self.build_dir,
+        )
 
     def get_settings(
         self,
