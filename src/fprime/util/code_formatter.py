@@ -1,4 +1,4 @@
-""" fprime.fbuild.code_formatter
+"""fprime.fbuild.code_formatter
 
 Wrapper for clang-format utility.
 
@@ -49,9 +49,10 @@ class ClangFormatter(ExecutableAction):
         super().__init__(TargetScope.LOCAL)
         self.executable = executable
         self.style_file = style_file
-        self.backup = options.get("backup", True)
+        self.backup = options.get("backup", False)
         self.verbose = options.get("verbose", False)
         self.quiet = options.get("quiet", False)
+        self.check = options.get("check", False)
         self.validate_extensions = options.get("validate_extensions", True)
         self.allowed_extensions = ALLOWED_EXTENSIONS.copy()
         self._files_to_format: List[Path] = []
@@ -135,8 +136,8 @@ class ClangFormatter(ExecutableAction):
                 "Override location with --pass-through --style=file:<path>."
             )
             return 1
-        # Backup files unless --no-backup is requested
-        if self.backup:
+        # Backup files unless --no-backup is requested or running only a --check
+        if self.backup and not self.check:
             for file in self._files_to_format:
                 shutil.copy2(file, file.parent / f"{file.stem}.bak{file.suffix}")
         pass_through = args[1]
@@ -146,6 +147,7 @@ class ClangFormatter(ExecutableAction):
             "-i",
             f"--style=file",
             *(["--verbose"] if not self.quiet else []),
+            *(["--dry-run", "--Werror"] if self.check else []),
             *pass_through,
             *self._files_to_format,
         ]
