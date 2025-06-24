@@ -241,7 +241,7 @@ def add_fpp_impl_parsers(
         "--overwrite",
         action="store_true",
         default=False,
-        help="Overwrite existing ComponentName.cpp and ComponentName.hpp files with new implementations after user confirmation",
+        help="Overwrite contents of current CPP and HPP files. Use with caution.",
         required=False,
 )
     return {"impl": run_fpp_impl}, {"impl": impl_parser}
