@@ -120,15 +120,7 @@ def fpp_generate_implementation(
             ],
         ),
     )
-    if args.overwrite:
-        for path in output_dir.glob("*.template.*"):
-            renamed = output_dir / path.name.replace(".template", "")
-            if renamed.exists():
-                print(f"[WARN] Skipping overwrite: {renamed}")
-            else:
-                path.rename(renamed)
-                print(f"[INFO] Renamed: {path.name} → {renamed.name}")
-
+    
     framework_path = build.settings.get("framework_path", Path("."))
     # FPP --names outputs a list of file names.
     generated_file_names = [
@@ -141,8 +133,42 @@ def fpp_generate_implementation(
     if generate_ut:
         _move_ut_templates(output_dir, generated_file_names)
 
-    return 0
+    # Handle --overwrite flag
+    if hasattr(args, "overwrite") and args.overwrite:
+        component_name = context.stem if context.suffix == ".fpp" else generated_file_names[0].stem.split(".")[0]
+        files = [
+            (f"{component_name}.template.cpp", f"{component_name}.cpp"),
+            (f"{component_name}.template.hpp", f"{component_name}.hpp")
+        ]
+        files_to_change = []
+        for template_name, new_name in files:
+            template_path = output_dir / template_name
+            new_path = output_dir / new_name
+            if template_path.exists():
+                files_to_change.append((template_path, new_path))
+            else:
+                print(f"[WARN] Missing template: {template_name}")
 
+        if files_to_change:
+            print("[INFO] These files will be overwritten:")
+            for _, new_path in files_to_change:
+                print(f"  - {new_path}")
+            answer = input("[INFO] Do you want to continue? (yes/no): ").lower()
+            
+            if answer != "yes":
+                print("[INFO] Stopped. No files changed.")
+                return 0
+            
+            for template_path, new_path in files_to_change:
+                try:
+                    if new_path.exists():
+                        print(f"[WARN] Overwriting: {new_path}")
+                    template_path.replace(new_path)
+                    print(f"[INFO] Changed: {template_path.name} to {new_path.name}")
+                except Exception as e:
+                    print(f"[ERROR] Problem changing {template_path.name} to {new_path.name}: {e}")
+
+    return 0
 
 def run_fpp_impl(
     build: "Build",
@@ -215,6 +241,7 @@ def add_fpp_impl_parsers(
         "--overwrite",
         action="store_true",
         default=False,
-        help="Overwrite contents of current CPP and HPP files. Use with caution.",
+        help="Overwrite existing ComponentName.cpp and ComponentName.hpp files with new implementations after user confirmation",
+        required=False,
 )
     return {"impl": run_fpp_impl}, {"impl": impl_parser}
